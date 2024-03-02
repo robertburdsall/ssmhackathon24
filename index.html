@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMATH WINNERS</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        body {
+            display: flex;
+            justify-self: center;
+            align-items: center;
+        }
+
+        #canvas {
+            width: 100dvw;
+            height: 100dvh;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <input type="range" min="0" max="255" value="155" id="floodThreshold" style="width: 50%">
+    <script type="text/javascript">
+        // Global initializations
+        let canvas;
+        let floodThreshold = 200;
+        let mapWidth = 600;
+        let mapHeight = 300;
+        let mapX;
+        let mapY;
+
+        function init() {
+            canvas = document.getElementById('canvas');
+            canvas.width = document.body.clientWidth;
+            canvas.height = document.body.clientHeight;
+            canvas.getContext("2d", { willReadFrequently: true })
+
+            mapX = canvas.width / 2 - mapWidth / 2;
+            mapY = canvas.height / 2 - mapHeight / 2;
+        }
+
+        function DrawMap() {
+            let ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            console.log("Drawing image...");
+            let map = new Image();
+            map.src = "Resources/ncTopographic.png";
+            ctx.beginPath();
+            ctx.drawImage(map, mapX, mapY, mapWidth, mapHeight);
+            console.log("Done!");
+            
+            // Edit image pixel by pixel
+            console.log("Manipulating pixels...");
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            for (let index = 0; index < data.length; index += 4) {
+                // Harsh line on alpha values
+                let intensity = Math.floor((index)*0.299 + (index+1)*0.587 + b*0.114)
+                if (data[index + 1] >= floodThreshold) {
+                    data[index + 3] = 0;
+                }
+                else {
+                    //data[index + 3] = 0;
+                }
+            }
+            ctx.putImageData(imageData, 0, 0);
+            console.log("Done!");
+        }
+
+        window.onload = init;
+
+        window.addEventListener("keydown", function (event) { // Key down
+            if (event.code == "KeyE") {
+                DrawMap();
+            }
+        });
+        document.getElementById("floodThreshold").oninput = function () {
+            floodThreshold = parseInt(document.getElementById("floodThreshold").value);
+            DrawMap();
+        };
+    </script>
+</body>
+</html>
