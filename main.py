@@ -1,6 +1,9 @@
-import numpy
-import pandas as pd
+from altair import LayerSpec
+import geopandas as gpd
+import fiona
 
-sea_level = pd.read_csv("Resources/SLR_TF U.S. Sea Level Projections.csv")
+layerslist = []
+for layer in fiona.listlayers('Resources/NC_Northern_slr_final_dist.gdb/'):
+    layerslist.append(layer)
 
-print(sea_level.head())
+print(gpd.read_file("Resources/NC_Northern_slr_final_dist.gdb/", driver='FileGDB', layer=0))
