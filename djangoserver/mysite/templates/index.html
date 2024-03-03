@@ -6,9 +6,10 @@
     <title>Doordash</title>
     <style>
         :root {
-            --backgroundColor: rgb(50, 168, 82);
-            --accentColor: rgb(250, 250, 255);
-            --selectionColor: rgb(150, 0, 150);
+            --backgroundColor: #32a852;
+            --accentColor: #f0f0ff;
+            --secondaryColor: #706C61;
+            --selectionColor: #960096;
         }
         * {
             padding: 0;
@@ -27,25 +28,28 @@
 
         body {
             display: flex;
-            background-color: var(--backgroundColor);
+            background-color: var(--secondaryColor);
+            width: 100%;
+            height: 100%;
         }
 
         #header {
             position: fixed;
             width: 100dvw;
-            height: 10%;
+            height: 15%;
             display: flex;
+            border-bottom: 5px solid var(--selectionColor);
             justify-content: center;
-            background-color: gray;
+            background-color: var(--secondaryColor);
         }
         .option {
             font-family: Roboto, sans-serif;
-            font-size: 20px;
+            font-size: 2dvw;
             text-align: center;
             color: black;
             background-color: var(--accentColor);
-            padding: 30px;
-            border: solid gray 3px;
+            padding: 1dvw;
+            border: 10px solid gray;
             border-radius: 25px;
             transition: 200ms;
             text-decoration: none;
@@ -55,12 +59,12 @@
         }
         #startGroup {
             font-family: Roboto, sans-serif;
-            font-size: 20px;
+            font-size: 2dvw;
             text-align: center;
             color: black;
             background-color: var(--accentColor);
-            padding: 30px;
-            border: solid gray 3px;
+            padding: 1dvw;
+            border: 10px solid gray;
             border-radius: 25px;
             transition: 200ms;
             text-decoration: none;
@@ -72,23 +76,25 @@
         #mainContainer {
             display: flex;
             flex-direction: column;
-            width: 70%;
+            width: 80%;
             height: 100%;
-            padding: 50px;
-            border: 5px solid red;
-            border-left: 5px dashed var(--accentColor);
-            border-right: 5px dashed var(--accentColor);
+            padding: 5%;
+            margin-top: 5%;
+            border: 5px solid var(--selectionColor);
+            background-color: var(--backgroundColor);
         }
         .group {
             display: flex;
             text-align: left;
             flex-direction: column;
             width: 100%;
-            padding: 50px;
-            margin-top: 20px;
+            padding: 5dvw;
+            margin-top: 5%;
             background-color: var(--accentColor);
+            border: 3px solid var(--selectionColor);
             border-radius: 20px;
             cursor: pointer;
+            box-shadow: rgba(0, 0, 0, 0.16) 0px 12px 6px, rgba(0, 0, 0, 0.25) 0px 3px 6px;
         }
         .descriptor {
             font-size: 3dvw;
@@ -100,9 +106,9 @@
             width: 70%;
             height: 100dvh;
             padding: 50px;
-            border: 5px solid red;
-            border-left: 5px dashed var(--accentColor);
-            border-right: 5px dashed var(--accentColor);
+            border-left: 5px solid var(--selectionColor);
+            border-right: 5px solid var(--selectionColor);
+            background-color: var(--backgroundColor);
         }
 
         #creationDisplay {
@@ -111,10 +117,20 @@
             width: 70%;
             height: 100dvh;
             padding: 50px;
-            border: 5px solid red;
-            border-left: 5px dashed var(--accentColor);
-            border-right: 5px dashed var(--accentColor);
+            border-left: 5px solid var(--selectionColor);
+            border-right: 5px solid var(--selectionColor);
+            background-color: var(--backgroundColor);
         }
+
+        @media only screen and (max-width: 800px) { /* Screen which has a maximum width of 900px */
+            #mainContainer {
+                height: 100dvh;
+                margin-top: 0;
+                border: none;
+                border-left: 5px solid var(--selectionColor);
+                border-right: 5px solid var(--selectionColor);
+            }
+        } 
     </style>
 </head>
 <body>
@@ -223,7 +239,7 @@
             */
            
             // For testing, assume data sent back is this
-            groupData = {"groups": [{"location": "McDonalds", "payment": "cash", "time": "5:30", "orderLink": "http://bruh.com", "personCount": "3", "hostName": "Noah"}, {"location": "ChikFilA", "payment": "Zelle or cash", "time": "6:30", "orderLink": "https://doordash.com", "personCount": "7", "hostName": "Robert"}], "status": 1};
+            groupData = {"groups": [{"location": "McDonalds", "payment": "cash", "time": "5:30", "orderLink": "http://bruh.com", "personCount": "3", "hostName": "Noah"}, {"location": "ChikFilA", "payment": "Zelle or cash", "time": "6:30", "orderLink": "https://doordash.com", "personCount": "7", "hostName": "Robert"}, {"location": "McDonalds", "payment": "cash", "time": "5:30", "orderLink": "http://bruh.com", "personCount": "3", "hostName": "Noah"}, {"location": "ChikFilA", "payment": "Zelle or cash", "time": "6:30", "orderLink": "https://doordash.com", "personCount": "7", "hostName": "Robert"}, {"location": "McDonalds", "payment": "cash", "time": "5:30", "orderLink": "http://bruh.com", "personCount": "3", "hostName": "Noah"}, {"location": "ChikFilA", "payment": "Zelle or cash", "time": "6:30", "orderLink": "https://doordash.com", "personCount": "7", "hostName": "Robert"}], "status": 1};
             for (let key in groupData) {
                 if (Array.isArray(groupData[key])) { // Only if data is iterable, meaning it is a group
                     for (let group of groupData[key]) {
@@ -239,12 +255,10 @@
             }
 
             // Check filters
-            console.log(filters);
             let disabled = false;
             let tweakedFilters = filters;
             for (let filter of filters) { if (filter) { disabled = true; } }
             if (!disabled) { tweakedFilters = []; for (let count = 0; count < filters.length; count++) { tweakedFilters.push(true); } }
-            console.log(tweakedFilters);
             for (let group of groups) { // Create elements
                 if (tweakedFilters[locations.indexOf(group.location)]) {
                     let element = document.createElement("div");
@@ -322,6 +336,9 @@
         // Create button event listener
         document.getElementById("createGroup").addEventListener("click", function(event) {
             CreateGroup();
+            document.getElementById("creationDisplay").style.display = "none";
+            document.getElementById("header").style.display = "flex";
+            document.getElementById("mainContainer").style.display = "flex";
         });
 
         /*
