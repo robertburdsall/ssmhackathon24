@@ -231,7 +231,7 @@
             */
            
             // For testing, assume data sent back is this
-            groupData = {"groups": [{"location": "McDonalds", "payment": "cash", "time": "5:30", "orderLink": "http://bruh.com"}, {"location": "ChikFilA", "payment": "Zelle or cash", "time": "6:30", "orderLink": "https://doordash.com"}]};
+            groupData = {"groups": [{"location": "McDonalds", "payment": "cash", "time": "5:30", "orderLink": "http://bruh.com"}, {"location": "ChikFilA", "payment": "Zelle or cash", "time": "6:30", "orderLink": "https://doordash.com"}, {"location": "McDonalds", "payment": "cash", "time": "5:30", "orderLink": "http://bruh.com"}, {"location": "ChikFilA", "payment": "Zelle or cash", "time": "6:30", "orderLink": "https://doordash.com"}, {"location": "McDonalds", "payment": "cash", "time": "5:30", "orderLink": "http://bruh.com"}, {"location": "ChikFilA", "payment": "Zelle or cash", "time": "6:30", "orderLink": "https://doordash.com"}]};
             for (let key in groupData) {
                 if (Array.isArray(groupData[key])) { // Only if data is iterable, meaning it is a group
                     for (let group of groupData[key]) {
