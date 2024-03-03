@@ -20,9 +20,9 @@ from main.views import index
 
 urlpatterns = [
     path('', index, name='index'),
-    path('groups/', include("groups.urls")),
-    path('create/', include("create.urls")),
-    path("polls/", include("polls.urls")),
-    path("admin/", admin.site.urls),
+    path('groups', include("groups.urls")),
+    path('create', include("create.urls")),
+    path("polls", include("polls.urls")),
+    path("admin", admin.site.urls),
 
 ]
