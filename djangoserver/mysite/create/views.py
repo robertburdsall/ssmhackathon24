@@ -2,6 +2,7 @@ from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.views import View
+from .models import GroupData
 import json
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -26,15 +27,15 @@ class MyJsonView(View):
             personCount = json_data.get('personCount')
             hostName = json_data.get('hostName')
 
-            print( hostName, personCount)
-            # validation 
+            # validation    
             if not (location and payment and time and orderLink and personCount and hostName):
                 return JsonResponse({'message' : 'missing required information to create group!', 'status':'error'})
-        
+            
+            g = GroupData(location=location, payment=payment, time=time, orderLink=orderLink, personCount=personCount, hostName=hostName)
+
+            g.save()
 
             return JsonResponse({'message': 'Group added successfully!', 'status': "ok"})
         
         except json.JSONDecodeError:
             return JsonResponse({'message': 'Invalid JSON data!', 'status': 'error'})
-        except Exception as e:
-            return JsonResponse({'message':'error: who knows', 'status':'error'})
