@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doordash</title>
+    <style>
+        :root {
+            --backgroundColor: rgb(0, 75, 105);
+            --accentColor: rgb(255, 205, 145);
+        }
+        * {
+            padding: 0;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            box-sizing: border-box;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        body {
+            display: flex;
+            justify-self: center;
+            align-items: center;
+            width: 100dvw;
+            height: 100dvh;
+            background-color: aquamarine;
+        }
+
+        .mainContainer {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            width: 70%;
+            height: 100%;
+            padding: 50px;
+            background-color: var(--backgroundColor);
+            border-left: 5px solid var(--accentColor);
+            border-right: 5px solid var(--accentColor);
+        }
+
+        .subContainer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            width: 100%;
+            padding: 50px;
+            margin-top: 20px;
+            background-color: var(--accentColor);
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body class="mainContainer">
+    <script type="text/javascript">
+        
+        /*
+        fetch("/minesweeper/info?gameid=" + logic + "&action=time", {
+        method: "GET", headers: {"Content-type": "application/json"}})
+        .then((response) => data = response.json())
+        .then((data) => document.getElementById('timer').textContent = Math.floor(data["message"]/1000));
+        */
+
+        function init() {
+            
+        }
+        async function handleButtonClick(event){
+            // Left Clicks only
+            if( event.buttons != 1 ){
+                return false;
+            }
+
+            // Get the row and column clicked on
+            let row = parseInt(event.target.getAttribute('data-row'))
+            let col = parseInt(event.target.getAttribute('data-col'))
+
+            // If the user actually clicks
+            let pSpace = async function(event){
+                clearTimeout(longPressTimer);    
+                event.target.removeEventListener('mouseup', this);
+                
+                let isValid = null;
+                await fetch("/minesweeper/move", {
+                method: "POST", headers: {"Content-type": "application/json"},
+                body: JSON.stringify({ gameid: logic, row: row, col: col, flag: false })})
+                .then((response) => data = response.json())
+                .then((data) => isValid = data["status"]);
+
+                if(isValid == "success"){
+                    event.target.classList.add('selected');
+                }
+            }
+
+            const LONG_PRESS_TIMER_MS = 250;
+            // Allow long press
+            let longPressTimer = setTimeout(async function(){
+                await fetch("/minesweeper/move", {
+                method: "POST", headers: {"Content-type": "application/json"},
+                body: JSON.stringify({ gameid: logic, row: row, col: col, flag: true })})
+                
+                event.target.removeEventListener('mouseup', pSpace);
+            }, LONG_PRESS_TIMER_MS)
+
+            // Set up long press cancelations (actual click or move out of space)
+            event.target.addEventListener('mouseup', pSpace)
+            event.target.addEventListener('mouseout', function(event){
+                clearTimeout(longPressTimer);
+                event.target.removeEventListener('mouseup', pSpace);
+                event.target.removeEventListener('mouseout', this);
+            })
+        }
+
+        // Internal algorithm to update the board
+        async function updateBoard(){
+            let spaces = board.getElementsByClassName('space')
+            let gameIsOver = 0; // Check if the game is over by fetching
+
+            let boardValues = null;
+            await fetch("/minesweeper/info?gameid=" + logic + "&action=board", {
+            method: "GET", headers: {"Content-type": "application/json"}})
+            .then((response) => data = response.json())
+            .then(function(data) {
+                boardValues = data.message
+                gameIsOver = data.message["gameOver"]
+            });
+
+            for( let space of spaces ){
+                let row = parseInt(space.getAttribute('data-row'))
+                let col = parseInt(space.getAttribute('data-col'))        
+
+                let value = boardValues["(" + row + "," + col + ")"];
+                    
+                // Add/Remove the correct CSS class to each space
+                if( value >= 0 ){
+                    space.classList.add('selected');
+                    space.textContent = value;
+                }
+                else if( value == "M" ){
+                    space.classList.add('mine')
+                }
+                else if( value == "F" ){
+                    space.classList.add('flag')
+                }
+                else {
+                    space.classList.remove('flag')
+                }
+            }
+
+            // Update score
+            fetch("/minesweeper/info?gameid=" + logic + "&action=score", {
+            method: "GET", headers: {"Content-type": "application/json"}})
+            .then((response) => data = response.json())
+            .then((data) => document.getElementById('numOpenSpaces').textContent = data["message"]);
+
+            // Update the Win/Lose Graphic
+            if( gameIsOver ){
+                let message = "You Win!";
+                let scoreClass = 'win'
+                let name = document.getElementById('name');
+                if( gameIsOver < 0 ){
+                    message = "You Lose!"
+                    scoreClass = 'lose';
+                }
+                name.textContent = message;
+                document.getElementsByClassName('scoreboard')[0].classList.add(scoreClass);
+            }
+        }
+
+        const source = new EventSource("/"); // URL for the event stream
+        source.onmessage = function(data) {
+            Update();
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
