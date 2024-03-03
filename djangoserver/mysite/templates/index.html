@@ -151,8 +151,6 @@
         <div id="payment" class="descriptor"></div>
         <div id="time" class="descriptor"></div>
         <div id="orderLink" class="descriptor"></div>
-        <div id="personCount" class="descriptor"></div>
-        <div id="hostName" class="descriptor"></div>
         <div id="exitGroup" class="option">Exit</div>
     </div>
     <form id="creationDisplay" action="create">
@@ -180,24 +178,18 @@
             #payment;
             #time;
             #orderLink;
-            #personCount;
-            #hostName;
 
-            constructor(location, payment, time, orderLink, personCount, hostName) {
+            constructor(location, payment, time, orderLink) {
                 this.#location = location;
                 this.#payment = payment;
                 this.#time = time;
                 this.#orderLink = orderLink;
-                this.#personCount = personCount;
-                this.#hostName = hostName;
             }
 
             get location() { return this.#location; }
             get payment() { return this.#payment; }
             get time() { return this.#time; }
             get orderLink() { return this.#orderLink; }
-            get personCount() { return this.#personCount; }
-            get hostName() { return this.#hostName; }
         }
 
         // Global intitializations
@@ -239,11 +231,11 @@
             */
            
             // For testing, assume data sent back is this
-            groupData = {"groups": [{"location": "McDonalds", "payment": "cash", "time": "5:30", "orderLink": "http://bruh.com", "personCount": "3", "hostName": "Noah"}, {"location": "ChikFilA", "payment": "Zelle or cash", "time": "6:30", "orderLink": "https://doordash.com", "personCount": "7", "hostName": "Robert"}, {"location": "McDonalds", "payment": "cash", "time": "5:30", "orderLink": "http://bruh.com", "personCount": "3", "hostName": "Noah"}, {"location": "ChikFilA", "payment": "Zelle or cash", "time": "6:30", "orderLink": "https://doordash.com", "personCount": "7", "hostName": "Robert"}, {"location": "McDonalds", "payment": "cash", "time": "5:30", "orderLink": "http://bruh.com", "personCount": "3", "hostName": "Noah"}, {"location": "ChikFilA", "payment": "Zelle or cash", "time": "6:30", "orderLink": "https://doordash.com", "personCount": "7", "hostName": "Robert"}], "status": 1};
+            groupData = {"groups": [{"location": "McDonalds", "payment": "cash", "time": "5:30", "orderLink": "http://bruh.com"}, {"location": "ChikFilA", "payment": "Zelle or cash", "time": "6:30", "orderLink": "https://doordash.com"}]};
             for (let key in groupData) {
                 if (Array.isArray(groupData[key])) { // Only if data is iterable, meaning it is a group
                     for (let group of groupData[key]) {
-                        groups.push(new Group(group["location"], group["payment"], group["time"], group["orderLink"], group["personCount"], group["hostName"]));
+                        groups.push(new Group(group["location"], group["payment"], group["time"], group["orderLink"]));
                     }
                 }
             }
@@ -296,8 +288,6 @@
             document.getElementById("payment").textContent = "Payment: " + group.payment;
             document.getElementById("time").textContent = "Time: " + group.time;
             document.getElementById("orderLink").textContent = "Order Link: " + group.orderLink;
-            document.getElementById("personCount").textContent = "Person Count: " + group.personCount;
-            document.getElementById("hostName").textContent = "Host Name: " + group.hostName;
         }
         function ExitGroup() {
             document.getElementById("groupDisplay").style.display = "none";
