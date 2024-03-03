@@ -29,19 +29,29 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
+# all applications used accross projects
 
 INSTALLED_APPS = [
+    # the admin site
     "django.contrib.admin",
+    # default authentication system
     "django.contrib.auth",
+    # content type framework
     "django.contrib.contenttypes",
+    # session framework
     "django.contrib.sessions",
+    # messaging framework
     "django.contrib.messages",
+    # managing static files
     "django.contrib.staticfiles",
+    # poll test application
+    "polls.apps.PollsConfig"
 
 
 ]
 
 MIDDLEWARE = [
+
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -107,7 +117,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "EST"
 
 USE_I18N = True
 

@@ -54,69 +54,29 @@
 </head>
 <body class="mainContainer">
     <script type="text/javascript">
-        
-        /*
-        fetch("/minesweeper/info?gameid=" + logic + "&action=time", {
-        method: "GET", headers: {"Content-type": "application/json"}})
-        .then((response) => data = response.json())
-        .then((data) => document.getElementById('timer').textContent = Math.floor(data["message"]/1000));
-        */
+        class Group {
+            #location;
+            #time;
+            #personCount;
+        }
 
         function init() {
-            
-        }
-        async function handleButtonClick(event){
-            // Left Clicks only
-            if( event.buttons != 1 ){
-                return false;
-            }
-
-            // Get the row and column clicked on
-            let row = parseInt(event.target.getAttribute('data-row'))
-            let col = parseInt(event.target.getAttribute('data-col'))
-
-            // If the user actually clicks
-            let pSpace = async function(event){
-                clearTimeout(longPressTimer);    
-                event.target.removeEventListener('mouseup', this);
-                
-                let isValid = null;
-                await fetch("/minesweeper/move", {
-                method: "POST", headers: {"Content-type": "application/json"},
-                body: JSON.stringify({ gameid: logic, row: row, col: col, flag: false })})
-                .then((response) => data = response.json())
-                .then((data) => isValid = data["status"]);
-
-                if(isValid == "success"){
-                    event.target.classList.add('selected');
-                }
-            }
-
-            const LONG_PRESS_TIMER_MS = 250;
-            // Allow long press
-            let longPressTimer = setTimeout(async function(){
-                await fetch("/minesweeper/move", {
-                method: "POST", headers: {"Content-type": "application/json"},
-                body: JSON.stringify({ gameid: logic, row: row, col: col, flag: true })})
-                
-                event.target.removeEventListener('mouseup', pSpace);
-            }, LONG_PRESS_TIMER_MS)
-
-            // Set up long press cancelations (actual click or move out of space)
-            event.target.addEventListener('mouseup', pSpace)
-            event.target.addEventListener('mouseout', function(event){
-                clearTimeout(longPressTimer);
-                event.target.removeEventListener('mouseup', pSpace);
-                event.target.removeEventListener('mouseout', this);
-            })
+            UpdateGroups();
         }
 
-        // Internal algorithm to update the board
-        async function updateBoard(){
-            let spaces = board.getElementsByClassName('space')
-            let gameIsOver = 0; // Check if the game is over by fetching
+        async function CreateGroup(event) {
+            let isValid = null;
+            await fetch("/minesweeper/move", {
+            method: "POST", headers: {"Content-type": "application/json"},
+            body: JSON.stringify({ gameid: logic, row: row, col: col, flag: false })})
+            .then((response) => data = response.json())
+            .then((data) => isValid = data["status"]);
+            if (isValid == "success") {
+                event.target.classList.add('selected');
+            }
+        }
 
-            let boardValues = null;
+        async function UpdateGroups() {
             await fetch("/minesweeper/info?gameid=" + logic + "&action=board", {
             method: "GET", headers: {"Content-type": "application/json"}})
             .then((response) => data = response.json())
@@ -125,51 +85,16 @@
                 gameIsOver = data.message["gameOver"]
             });
 
-            for( let space of spaces ){
-                let row = parseInt(space.getAttribute('data-row'))
-                let col = parseInt(space.getAttribute('data-col'))        
-
-                let value = boardValues["(" + row + "," + col + ")"];
-                    
-                // Add/Remove the correct CSS class to each space
-                if( value >= 0 ){
-                    space.classList.add('selected');
-                    space.textContent = value;
-                }
-                else if( value == "M" ){
-                    space.classList.add('mine')
-                }
-                else if( value == "F" ){
-                    space.classList.add('flag')
-                }
-                else {
-                    space.classList.remove('flag')
-                }
-            }
-
             // Update score
             fetch("/minesweeper/info?gameid=" + logic + "&action=score", {
             method: "GET", headers: {"Content-type": "application/json"}})
             .then((response) => data = response.json())
             .then((data) => document.getElementById('numOpenSpaces').textContent = data["message"]);
-
-            // Update the Win/Lose Graphic
-            if( gameIsOver ){
-                let message = "You Win!";
-                let scoreClass = 'win'
-                let name = document.getElementById('name');
-                if( gameIsOver < 0 ){
-                    message = "You Lose!"
-                    scoreClass = 'lose';
-                }
-                name.textContent = message;
-                document.getElementsByClassName('scoreboard')[0].classList.add(scoreClass);
-            }
         }
 
-        const source = new EventSource("/"); // URL for the event stream
-        source.onmessage = function(data) {
-            Update();
+        const source = new EventSource("/events"); // URL for the event stream
+        source.onmessage = function(data) { // Change later to send the data back directly
+            UpdateGroups();
         }
 
         window.onload = init;
