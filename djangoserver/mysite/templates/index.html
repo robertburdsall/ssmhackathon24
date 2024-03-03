@@ -6,8 +6,9 @@
     <title>Doordash</title>
     <style>
         :root {
-            --backgroundColor: rgb(0, 75, 105);
-            --accentColor: rgb(255, 205, 145);
+            --backgroundColor: rgb(50, 168, 82);
+            --accentColor: rgb(250, 250, 255);
+            --selectionColor: rgb(150, 0, 150);
         }
         * {
             padding: 0;
@@ -15,44 +16,148 @@
             font-family: Arial, sans-serif;
             box-sizing: border-box;
             justify-content: center;
-            overflow: hidden;
+            /* Disable text selection */
+            touch-action: manipulation;
+            -webkit-touch-callout: none; /* iOS Safari */
+            -webkit-user-select: none; /* Safari */
+            -moz-user-select: none; /* Old versions of Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Chrome, Opera and Firefox */
         }
 
         body {
             display: flex;
-            justify-self: center;
-            align-items: center;
-            width: 100dvw;
-            height: 100dvh;
-            background-color: aquamarine;
+            background-color: var(--backgroundColor);
         }
 
-        .mainContainer {
+        #header {
+            position: fixed;
+            width: 100dvw;
+            height: 10%;
             display: flex;
-            align-items: center;
+            justify-content: center;
+            background-color: gray;
+        }
+        .option {
+            font-family: Roboto, sans-serif;
+            font-size: 20px;
+            text-align: center;
+            color: black;
+            background-color: var(--accentColor);
+            padding: 30px;
+            border: solid gray 3px;
+            border-radius: 25px;
+            transition: 200ms;
+            text-decoration: none;
+            width: 200px;
+            display: inline-block;
+            cursor: pointer;
+        }
+        #startGroup {
+            font-family: Roboto, sans-serif;
+            font-size: 20px;
+            text-align: center;
+            color: black;
+            background-color: var(--accentColor);
+            padding: 30px;
+            border: solid gray 3px;
+            border-radius: 25px;
+            transition: 200ms;
+            text-decoration: none;
+            width: 200px;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        #mainContainer {
+            display: flex;
             flex-direction: column;
             width: 70%;
             height: 100%;
             padding: 50px;
-            background-color: var(--backgroundColor);
-            border-left: 5px solid var(--accentColor);
-            border-right: 5px solid var(--accentColor);
+            border: 5px solid red;
+            border-left: 5px dashed var(--accentColor);
+            border-right: 5px dashed var(--accentColor);
         }
-
-        .subContainer {
+        .group {
             display: flex;
-            justify-content: center;
-            align-items: center;
+            text-align: left;
             flex-direction: column;
             width: 100%;
             padding: 50px;
             margin-top: 20px;
             background-color: var(--accentColor);
             border-radius: 20px;
+            cursor: pointer;
+        }
+        .descriptor {
+            font-size: 3dvw;
+        }
+
+        #groupDisplay {
+            display: none;
+            flex-direction: column;
+            width: 70%;
+            height: 100dvh;
+            padding: 50px;
+            border: 5px solid red;
+            border-left: 5px dashed var(--accentColor);
+            border-right: 5px dashed var(--accentColor);
+        }
+
+        #creationDisplay {
+            display: none;
+            flex-direction: column;
+            width: 70%;
+            height: 100dvh;
+            padding: 50px;
+            border: 5px solid red;
+            border-left: 5px dashed var(--accentColor);
+            border-right: 5px dashed var(--accentColor);
         }
     </style>
 </head>
-<body class="mainContainer">
+<body>
+    <header id="header">
+        <button class="option">ChikFilA</button>
+        <button class="option">McDonalds</button>
+        <button class="option">Panera</button>
+        <button class="option">Taco Bell</button>
+        <button id="startGroup">Start Group</button>
+    </header>
+    <div id="mainContainer">
+        <div class="group">
+            <div class="descriptor">Hello</div>
+        </div>
+    </div>
+    <div id="groupDisplay">
+        <div id="location" class="descriptor"></div>
+        <div id="payment" class="descriptor"></div>
+        <div id="time" class="descriptor"></div>
+        <div id="orderLink" class="descriptor"></div>
+        <div id="personCount" class="descriptor"></div>
+        <div id="hostName" class="descriptor"></div>
+        <div id="exitGroup" class="option">Exit</div>
+    </div>
+    <form id="creationDisplay" action="create">
+        <div class="descriptor">
+            <span>Location</span>
+            <input name='location' id="setLocation"/>
+        </div>
+        <div class="descriptor">
+            <span>Payment</span>
+            <input name='payment' id="setPayment"/>
+        </div>
+        <div class="descriptor">
+            <span>Time</span>
+            <input name='time' id="setTime"/>
+        </div>
+        <div class="descriptor">
+            <span>Order Link</span>
+            <input name='orderLink' id="setOrderLink"/>
+        </div>
+        <button id="createGroup" type="button">Create Group</button>
+    </form>
     <script type="text/javascript">
         class Group {
             #location;
@@ -79,37 +184,145 @@
             get hostName() { return this.#hostName; }
         }
 
+        // Global intitializations
+        let locations = [];
+        let filters = [];
+        let groups = [];
+
         function init() {
-            //UpdateGroups();
+            UpdateGroups();
         }
 
         async function CreateGroup(event) {
+            let postData = {"location": document.getElementById("setLocation").value, "payment": document.getElementById("setPayment").value, 
+            "time": document.getElementById("setTime").value, "orderLink": document.getElementById("setOrderLink").value};
+
             let isValid = null;
             await fetch("/create", {
             method: "POST", headers: {"Content-type": "application/json"},
-            body: JSON.stringify({ gameid: logic, row: row, col: col, flag: false })})
+            body: JSON.stringify(postData)})
             .then((response) => data = response.json())
             .then((data) => isValid = data["status"]);
-            if (isValid == "success") {
-                event.target.classList.add('selected');
+            if (isValid == "ok") {
+                console.log("Server has successfully received your data!");
             }
         }
 
         async function UpdateGroups() {
+            let groupData;
+            groups = []; // Reset an previous data
+
+            /*
             await fetch("/groups", {
             method: "GET", headers: {"Content-type": "application/json"}})
             .then((response) => data = response.json())
             .then(function(data) {
-                boardValues = data.message;
-                gameIsOver = data.message["gameOver"];
+                groupData = data;
+                //data.message["something"];
             });
+            */
+           
+            // For testing, assume data sent back is this
+            groupData = {"groups": [{"location": "McDonalds", "payment": "cash", "time": "5:30", "orderLink": "http://bruh.com", "personCount": "3", "hostName": "Noah"}, {"location": "ChikFilA", "payment": "Zelle or cash", "time": "6:30", "orderLink": "https://doordash.com", "personCount": "7", "hostName": "Robert"}], "status": 1};
+            for (let key in groupData) {
+                if (Array.isArray(groupData[key])) { // Only if data is iterable, meaning it is a group
+                    for (let group of groupData[key]) {
+                        groups.push(new Group(group["location"], group["payment"], group["time"], group["orderLink"], group["personCount"], group["hostName"]));
+                    }
+                }
+            }
+            
+            // Delete and regenerate all group elements
+            let container = document.getElementById("mainContainer");
+            for (let group of container.querySelectorAll("#mainContainer > .group")) {
+                group.remove();
+            }
 
-            // Update score
-            fetch("/minesweeper/info?gameid=" + logic + "&action=score", {
-            method: "GET", headers: {"Content-type": "application/json"}})
-            .then((response) => data = response.json())
-            .then((data) => document.getElementById('numOpenSpaces').textContent = data["message"]);
+            // Check filters
+            console.log(filters);
+            let disabled = false;
+            let tweakedFilters = filters;
+            for (let filter of filters) { if (filter) { disabled = true; } }
+            if (!disabled) { tweakedFilters = []; for (let count = 0; count < filters.length; count++) { tweakedFilters.push(true); } }
+            console.log(tweakedFilters);
+            for (let group of groups) { // Create elements
+                if (tweakedFilters[locations.indexOf(group.location)]) {
+                    let element = document.createElement("div");
+                    element.classList.add("group");
+                    element.setAttribute("groupIndex", groups.indexOf(group));
+                    element.addEventListener('click', ClickGroup);
+                    
+                    // Append descriptors
+                    let locationDesc = document.createElement("div");
+                    locationDesc.classList.add("descriptor");
+                    locationDesc.textContent = "Location: " + group.location;
+                    element.appendChild(locationDesc);
+                    let timeDesc = document.createElement("div");
+                    timeDesc.classList.add("descriptor");
+                    timeDesc.textContent = "Time: " + group.time;
+                    element.appendChild(timeDesc);
+                    let paymentDesc = document.createElement("div");
+                    paymentDesc.classList.add("descriptor");
+                    paymentDesc.textContent = "Payment: " + group.payment;
+                    element.appendChild(paymentDesc);
+
+                    container.appendChild(element);
+                }
+            }
         }
+
+        function ClickGroup(event) {
+            document.getElementById("header").style.display = "none";
+            document.getElementById("mainContainer").style.display = "none";
+            document.getElementById("groupDisplay").style.display = "flex";
+            let element = event.target;
+            if (event.target.classList.contains("descriptor")) { element = element.parentNode; }
+            let group = groups[element.getAttribute("groupIndex")];
+            document.getElementById("location").textContent = "Location: " + group.location;
+            document.getElementById("payment").textContent = "Payment: " + group.payment;
+            document.getElementById("time").textContent = "Time: " + group.time;
+            document.getElementById("orderLink").textContent = "Order Link: " + group.orderLink;
+            document.getElementById("personCount").textContent = "Person Count: " + group.personCount;
+            document.getElementById("hostName").textContent = "Host Name: " + group.hostName;
+        }
+        function ExitGroup() {
+            document.getElementById("groupDisplay").style.display = "none";
+            document.getElementById("header").style.display = "flex";
+            document.getElementById("mainContainer").style.display = "flex";
+        }
+
+        function NewGroup() {
+            document.getElementById("header").style.display = "none";
+            document.getElementById("mainContainer").style.display = "none";
+            document.getElementById("creationDisplay").style.display = "flex";
+        }
+
+        // Filter button event listeners
+        for (let filter of document.getElementById("header").querySelectorAll("#header > .option")) {
+            locations.push(filter.textContent);
+            filters.push(false);
+            filter.addEventListener("click", function(event) {
+                if (filters[locations.indexOf(filter.textContent)]) { filters[locations.indexOf(filter.textContent)] = false; filter.style.backgroundColor = "var(--accentColor)"; }
+                else { filters[locations.indexOf(filter.textContent)] = true; filter.style.backgroundColor = "var(--selectionColor)"; }
+                UpdateGroups();
+            });
+        }
+
+        // Exit button event listener
+        document.getElementById("exitGroup").addEventListener("click", function(event) {
+            ExitGroup();
+            UpdateGroups();
+        });
+
+        // Start button event listener
+        document.getElementById("startGroup").addEventListener("click", function(event) {
+            NewGroup();
+        });
+
+        // Create button event listener
+        document.getElementById("createGroup").addEventListener("click", function(event) {
+            CreateGroup();
+        });
 
         /*
         const source = new EventSource("/events"); // URL for the event stream
