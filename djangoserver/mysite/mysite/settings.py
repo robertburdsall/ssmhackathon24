@@ -1,3 +1,4 @@
+import os
 """
 Django settings for mysite project.
 
@@ -63,10 +64,11 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "mysite.urls"
 
+
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

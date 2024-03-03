@@ -56,17 +56,36 @@
     <script type="text/javascript">
         class Group {
             #location;
+            #payment;
             #time;
+            #orderLink;
             #personCount;
+            #hostName;
+
+            constructor(location, payment, time, orderLink, personCount, hostName) {
+                this.#location = location;
+                this.#payment = payment;
+                this.#time = time;
+                this.#orderLink = orderLink;
+                this.#personCount = personCount;
+                this.#hostName = hostName;
+            }
+
+            get location() { return this.#location; }
+            get payment() { return this.#payment; }
+            get time() { return this.#time; }
+            get orderLink() { return this.#orderLink; }
+            get personCount() { return this.#personCount; }
+            get hostName() { return this.#hostName; }
         }
 
         function init() {
-            UpdateGroups();
+            //UpdateGroups();
         }
 
         async function CreateGroup(event) {
             let isValid = null;
-            await fetch("/minesweeper/move", {
+            await fetch("/create", {
             method: "POST", headers: {"Content-type": "application/json"},
             body: JSON.stringify({ gameid: logic, row: row, col: col, flag: false })})
             .then((response) => data = response.json())
@@ -77,12 +96,12 @@
         }
 
         async function UpdateGroups() {
-            await fetch("/minesweeper/info?gameid=" + logic + "&action=board", {
+            await fetch("/groups", {
             method: "GET", headers: {"Content-type": "application/json"}})
             .then((response) => data = response.json())
             .then(function(data) {
-                boardValues = data.message
-                gameIsOver = data.message["gameOver"]
+                boardValues = data.message;
+                gameIsOver = data.message["gameOver"];
             });
 
             // Update score
@@ -92,10 +111,12 @@
             .then((data) => document.getElementById('numOpenSpaces').textContent = data["message"]);
         }
 
+        /*
         const source = new EventSource("/events"); // URL for the event stream
         source.onmessage = function(data) { // Change later to send the data back directly
             UpdateGroups();
         }
+        */
 
         window.onload = init;
     </script>
