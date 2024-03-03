@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SLRCRE</title>
+    <style>
+        :root {
+            --backgroundColor: rgb(0, 75, 105);
+            --accentColor: rgb(255, 205, 145);
+        }
+        * {
+            padding: 0;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            box-sizing: border-box;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        body {
+            display: flex;
+            justify-self: center;
+            align-items: center;
+            width: 100dvw;
+            height: 100dvh;
+            background-image: url('Resources/background.gif');
+            background-size: 100% 100%;
+        }
+
+        #mainContainer {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            width: 70%;
+            height: 100%;
+            padding: 50px;
+            background-color: var(--backgroundColor);
+            border-left: 5px solid var(--accentColor);
+            border-right: 5px solid var(--accentColor);
+        }
+
+        .subContainer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            width: 100%;
+            padding: 50px;
+            margin-top: 20px;
+            background-color: var(--accentColor);
+            border-radius: 20px;
+        }
+
+        #canvas {
+            width: 100%;
+            height: 100%;
+            border: 5px solid var(--backgroundColor);
+            border-radius: 50px;
+            background-color: rgb(0, 191, 255);
+        }
+        #yearCounter {
+            margin-top: 30px;
+            font-size: 20px;
+        }
+        #floodThreshold {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="mainContainer">
+        <div class="subContainer" style="font-size: 50px;">
+            SLERKER
+        </div>
+        <div class="subContainer">
+            <canvas id="canvas"></canvas>
+            <div id="yearCounter">2024</div>
+            <input type="range" min="0" max="255" value="0" id="floodThreshold" style="width: 50%">
+        </div>
+    </div>
+    <script type="text/javascript">
+        // Global initializations
+        let canvas;
+        let floodThreshold = 0;
+        let thresholdCap = 255; // Around 128
+        let mapWidth;
+        let mapHeight;
+        let mapX;
+        let mapY;
+
+        function init() {
+            canvas = document.getElementById('canvas');
+            canvas.width = document.body.clientWidth;
+            canvas.height = document.body.clientHeight;
+            canvas.getContext("2d", { willReadFrequently: true })
+
+            mapWidth = canvas.width * 0.8;
+            mapHeight = canvas.height * 0.8;
+            mapX = canvas.width / 2 - mapWidth / 2;
+            mapY = canvas.height / 2 - mapHeight / 2;
+
+            DrawMap();
+        }
+
+        function DrawMap() {
+            let ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            let map = new Image();
+            map.src = "Resources/ncTopographic.png";
+            ctx.beginPath();
+            ctx.drawImage(map, mapX, mapY, mapWidth, mapHeight);
+            
+            // Edit image pixel by pixel
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            for (let index = 0; index < data.length; index += 4) {
+                // Harsh line on alpha values
+                let intensity = Math.floor((data[index])*0.299 + (data[index + 1])*0.587 + (data[index + 2])*0.114);
+                if (intensity <= floodThreshold) {
+                    data[index + 3] = 0;
+                }
+                else {
+                    //data[index + 3] = 0;
+                }
+            }
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        window.onload = init;
+
+        document.getElementById("floodThreshold").oninput = function () {
+            floodThreshold = parseInt(document.getElementById("floodThreshold").value);
+            if (floodThreshold >= thresholdCap) { floodThreshold = thresholdCap; }
+            document.getElementById("yearCounter").textContent = 2024 + floodThreshold; //Math.floor(2024 + 0.0614 * (Math.E**(0.0486*floodThreshold)));
+            DrawMap();
+        };
+    </script>
+</body>
+</html>
