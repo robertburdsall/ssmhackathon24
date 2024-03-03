@@ -1,6 +1,7 @@
 from django.db import models
 
-class groupData(models.Model):
+class GroupData(models.Model):
+
     location = models.CharField(max_length=100)
     payment = models.CharField(max_length=100)
     time = models.CharField(max_length=100)

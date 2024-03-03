@@ -33,6 +33,8 @@ ALLOWED_HOSTS = []
 # all applications used accross projects
 
 INSTALLED_APPS = [
+    "create",
+    "groups",
     # the admin site
     "django.contrib.admin",
     # default authentication system
@@ -47,7 +49,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # poll test application
     "polls.apps.PollsConfig"
-
 
 ]
 
